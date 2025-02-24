@@ -1,0 +1,2 @@
+[py-config]
+packages = ["numpy", "pyweb", "pyscript"]
