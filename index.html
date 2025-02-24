@@ -51,7 +51,7 @@
                 bias = 0
                 learning_rate = 0.1
 
-                for _ in range(10):  # Iterate multiple times for learning
+                for _ in range(10):  
                     for i in range(len(X_train)):
                         prediction = 1 if np.dot(X_train[i], weights) + bias >= 0 else 0
                         error = y_train[i] - prediction
