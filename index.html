@@ -24,7 +24,7 @@
                 grid_size = 4
                 grid = np.zeros((grid_size, grid_size))
 
-                # Defineing correct T's and L's shapes 
+                ## Defineing correct T's and L's shapes 
                 T1 = np.array([0, 1, 1, 1, 
                                0, 0, 1, 0, 
                                0, 0, 1, 0, 
@@ -45,16 +45,16 @@
                                0, 0, 0, 1, 
                                0, 1, 1, 1])
 
-                # Labels: T = 1, L = 0
+                ## Labels: T = 1, L = 0
                 X_train = np.array([T1, T2, L1, L2])
                 y_train = np.array([1, 1, 0, 0])
 
-                # Initialize perceptron weights
+                ## Initialize perceptron weights
                 weights = np.zeros(16)
                 bias = 0
                 learning_rate = 0.1
 
-                # Train the perceptron
+                ## Train the perceptron
                 for _ in range(10):  # Iterate multiple times for learning
                     for i in range(len(X_train)):
                         prediction = 1 if np.dot(X_train[i], weights) + bias >= 0 else 0
