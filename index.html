@@ -15,6 +15,8 @@
 
         <section class="pyscript"> 
             <script type="py" config="pyscript.toml">
+                import micropip
+                await micropip.install("numpy")
                 import numpy as np
                 from pyscript import display
                 from pyweb import pydom
