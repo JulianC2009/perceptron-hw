@@ -1,1 +1,86 @@
+<html>
+    <head>
+        <title>Perceptron T/L Classifier</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+        <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    </head>
+
+    <body>
+        <h2>Press buttons to form an L or T shape, then classify:</h2>
+        <div id="grid"></div>
+        <br>
+        <button id="classify-button" py-click="classify_pattern" class="py-button">Classify</button>
+        <div id="classification-result"></div>
+
+        <section class="pyscript"> 
+            <script type="py" config="pyscript.toml">
+                import numpy as np
+                from pyscript import display
+                from pyweb import pydom
+
+                grid_size = 4
+                grid = np.zeros((grid_size, grid_size))
+
+                # Defineing correct T's and L's shapes 
+                T1 = np.array([0, 1, 1, 1, 
+                               0, 0, 1, 0, 
+                               0, 0, 1, 0, 
+                               0, 0, 1, 0])
+
+                T2 = np.array([0, 0, 1, 0, 
+                               0, 0, 1, 0, 
+                               1, 1, 1, 0, 
+                               0, 0, 0, 0])
+
+                L1 = np.array([1, 0, 0, 0, 
+                               1, 0, 0, 0, 
+                               1, 0, 0, 0, 
+                               1, 1, 1, 0])
+
+                L2 = np.array([0, 0, 0, 1, 
+                               0, 0, 0, 1, 
+                               0, 0, 0, 1, 
+                               0, 1, 1, 1])
+
+                # Labels: T = 1, L = 0
+                X_train = np.array([T1, T2, L1, L2])
+                y_train = np.array([1, 1, 0, 0])
+
+                # Initialize perceptron weights
+                weights = np.zeros(16)
+                bias = 0
+                learning_rate = 0.1
+
+                # Train the perceptron
+                for _ in range(10):  # Iterate multiple times for learning
+                    for i in range(len(X_train)):
+                        prediction = 1 if np.dot(X_train[i], weights) + bias >= 0 else 0
+                        error = y_train[i] - prediction
+                        weights += learning_rate * error * X_train[i]  # Update weights
+                        bias += learning_rate * error  # Update bias
+
+                def toggle_button(x, y):
+                    grid[x, y] = 1 - grid[x, y]
+                    render_grid()
+
+                def render_grid():
+                    html = ""
+                    for i in range(grid_size):
+                        for j in range(grid_size):
+                            color = "black" if grid[i, j] == 1 else "white"
+                            html += f'<button style="width:50px;height:50px;background:{color};" py-click="toggle_button({i},{j})"></button>'
+                        html += "<br>"
+                    pydom["#grid"].html = html
+
+                def classify_pattern():
+                    pattern = grid.flatten()
+                    prediction = 1 if np.dot(pattern, weights) + bias >= 0 else 0
+                    pydom["#classification-result"].html = f"Predicted Class: {'T' if prediction == 1 else 'L'}"
+
+                render_grid()
+            </script>
+        </section>
+    </body>
+</html>
 
