@@ -7,7 +7,7 @@
     </head>
 
     <body>
-        <h2>Press buttons to form an L or T shape, then classify:</h2>
+        <h2>Press the buttons to form an L or T shape, then classify:</h2>
         <div id="grid"></div>
         <br>
         <button id="classify-button" py-click="classify_pattern" class="py-button">Classify</button>
@@ -15,8 +15,8 @@
 
         <section class="pyscript"> 
             <script type="py" config="pyscript.toml">
-                import micropip
-                await micropip.install("numpy")
+                import pyodide
+                await pyodide.loadPackage("numpy")
                 import numpy as np
                 from pyscript import display
                 from pyweb import pydom
