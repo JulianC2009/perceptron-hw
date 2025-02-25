@@ -1,84 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Perceptron T/L Classifier</title>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perceptron Dropdown Grid</title>
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
 </head>
-
 <body>
-    <h2>Press the buttons to form an L or T shape, then classify:</h2>
-    <div id="grid"></div>
+    <div>Select 0 or 1 for each cell to make an L or T, then press "Classify":</div>
     <br>
-    <button id="classify-button" py-click="classify_pattern()" class="py-button">Classify</button>
+    <table>
+        <tr>
+            <td><select id="cell-00"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-01"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-02"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-03"><option>0</option><option>1</option></select></td>
+        </tr>
+        <tr>
+            <td><select id="cell-10"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-11"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-12"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-13"><option>0</option><option>1</option></select></td>
+        </tr>
+        <tr>
+            <td><select id="cell-20"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-21"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-22"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-23"><option>0</option><option>1</option></select></td>
+        </tr>
+        <tr>
+            <td><select id="cell-30"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-31"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-32"><option>0</option><option>1</option></select></td>
+            <td><select id="cell-33"><option>0</option><option>1</option></select></td>
+        </tr>
+    </table>
+    <br>
+    <button id="classify-button" py-click="classify_pattern">Classify</button>
     <div id="classification-result"></div>
 
-    <section class="pyscript"> 
-        <script type="py">
-            import pyodide
-            await pyodide.loadPackage("numpy")  # Load numpy explicitly
-            import numpy as np
-            from pyweb import pydom
+    <script type="py" config="pyscript.toml">
+        import numpy as np
+        from js import document
 
-            grid_size = 4
-            grid = np.zeros((grid_size, grid_size))
+        # Activation function
+        def activation_function(z):
+            return np.where(z >= 0, 1, 0)
 
-            T1 = np.array([0, 1, 1, 1, 
-                           0, 0, 1, 0, 
-                           0, 0, 1, 0, 
-                           0, 0, 1, 0])
-
-            T2 = np.array([0, 0, 1, 0, 
-                           0, 0, 1, 0, 
-                           1, 1, 1, 0, 
-                           0, 0, 0, 0])
-
-            L1 = np.array([1, 0, 0, 0, 
-                           1, 0, 0, 0, 
-                           1, 0, 0, 0, 
-                           1, 1, 1, 0])
-
-            L2 = np.array([0, 0, 0, 1, 
-                           0, 0, 0, 1, 
-                           0, 0, 0, 1, 
-                           0, 1, 1, 1])
-
-            X_train = np.array([T1, T2, L1, L2])
-            y_train = np.array([1, 1, 0, 0])
-
-            weights = np.zeros(16)
+        # Perceptron training function
+        def fit(X_train, y_train, learning_rate=0.01, epochs=1000):
+            weights = np.zeros(X_train.shape[1])
             bias = 0
-            learning_rate = 0.1
 
-            for _ in range(10):  
-                for i in range(len(X_train)):
-                    prediction = 1 if np.dot(X_train[i], weights) + bias >= 0 else 0
-                    error = y_train[i] - prediction
-                    weights += learning_rate * error * X_train[i]  # Update weights
-                    bias += learning_rate * error  # Update bias
+            for _ in range(epochs):
+                for idx, x_i in enumerate(X_train):
+                    linear_product = np.dot(x_i, weights) + bias
+                    y_pred = activation_function(linear_product)
+                    update = learning_rate * (y_pred - y_train[idx])
+                    weights -= update * x_i
+                    bias -= update
 
-            def toggle_button(x, y):
-                grid[x, y] = 1 - grid[x, y]
-                render_grid()
+            return weights, bias
 
-            def render_grid():
-                html = ""
-                for i in range(grid_size):
-                    for j in range(grid_size):
-                        color = "black" if grid[i, j] == 1 else "white"
-                        html += f'<button style="width:50px;height:50px;background:{color};" py-click="toggle_button({i},{j})"></button>'
-                    html += "<br>"
-                pydom["#grid"].html = html
+        # Predefined patterns for "L" and "T"
+        X_train = np.array([
+            [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],  # L
+            [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1],  # L (Flipped)
+            [1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0],  # T
+            [0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0]  # T (Rotated)
+        ])
+        y_train = np.array([0, 0, 1, 1])  # 0 for L, 1 for T
 
-            def classify_pattern():
-                pattern = grid.flatten()
-                prediction = 1 if np.dot(pattern, weights) + bias >= 0 else 0
-                pydom["#classification-result"].html = f"Predicted Class: {'T' if prediction == 1 else 'L'}"
+        # Train the perceptron
+        weights, bias = fit(X_train, y_train)
 
-            render_grid()
-            print("PyScript is running!")
-        </script>
-    </section>
+        # Function to get grid values
+        def get_value(cell_id):
+            element = document.getElementById(cell_id)
+            return int(element.value)  # Get the selected value directly
+
+        # Classification function
+        def classify_pattern(event=None):
+            try:
+                grid_values = np.array([
+                    get_value("cell-00"), get_value("cell-01"), get_value("cell-02"), get_value("cell-03"),
+                    get_value("cell-10"), get_value("cell-11"), get_value("cell-12"), get_value("cell-13"),
+                    get_value("cell-20"), get_value("cell-21"), get_value("cell-22"), get_value("cell-23"),
+                    get_value("cell-30"), get_value("cell-31"), get_value("cell-32"), get_value("cell-33")
+                ])
+
+                # Predict using the perceptron
+                linear_product = np.dot(grid_values, weights) + bias
+                y_pred = activation_function(linear_product)
+                result = "L" if y_pred == 0 else "T"
+
+                # Display the result
+                document.getElementById("classification-result").innerText = f"Predicted Class: {result}"
+            except Exception as e:
+                document.getElementById("classification-result").innerText = f"Error: {str(e)}"
+    </script>
 </body>
 </html>
