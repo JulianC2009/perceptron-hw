@@ -92,7 +92,7 @@
 
                 result_text = f"Prediction: {result}"
                 pydom["div#test-output"].html = result_text
-                except Exception as e:
+            except Exception as e:
                 pydom["div#test-output"].html = f"Error: {str(e)}"
     </script>
 </body>
