@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perceptron Dropdown Grid</title>
+    <title>Perceptron HW</title>
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
 </head>
@@ -38,17 +38,16 @@
     </table>
     <br>
     <button id="classify-button" py-click="classify_pattern">Classify</button>
-    <div id="classification-result"></div>
+
+    <div id="test-output"></div>
 
     <script type="py" config="pyscript.toml">
         import numpy as np
-        from js import document
+        from pyweb import pydom
 
-        # Activation function
         def activation_function(z):
             return np.where(z >= 0, 1, 0)
 
-        # Perceptron training function
         def fit(X_train, y_train, learning_rate=0.01, epochs=1000):
             weights = np.zeros(X_train.shape[1])
             bias = 0
@@ -63,42 +62,38 @@
 
             return weights, bias
 
-        # Predefined patterns for "L" and "T"
         X_train = np.array([
             [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],  # L
-            [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1],  # L (Flipped)
+            [0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1],  # L 
             [1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0],  # T
-            [0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0]  # T (Rotated)
+            [0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0]   # T 
         ])
         y_train = np.array([0, 0, 1, 1])  # 0 for L, 1 for T
 
-        # Train the perceptron
         weights, bias = fit(X_train, y_train)
 
-        # Function to get grid values
-        def get_value(cell_id):
-            element = document.getElementById(cell_id)
-            return int(element.value)  # Get the selected value directly
+        def get_grid_values():
+            grid_values = []
+            for i in range(4):
+                for j in range(4):
+                    cell_id = f"cell-{i}{j}"
+                    value = int(pydom[f"#{cell_id}"][0].value)
+                    grid_values.append(value)
+            return np.array(grid_values)
 
-        # Classification function
+
         def classify_pattern(event=None):
             try:
-                grid_values = np.array([
-                    get_value("cell-00"), get_value("cell-01"), get_value("cell-02"), get_value("cell-03"),
-                    get_value("cell-10"), get_value("cell-11"), get_value("cell-12"), get_value("cell-13"),
-                    get_value("cell-20"), get_value("cell-21"), get_value("cell-22"), get_value("cell-23"),
-                    get_value("cell-30"), get_value("cell-31"), get_value("cell-32"), get_value("cell-33")
-                ])
+                grid_values = get_grid_values()
 
-                # Predict using the perceptron
                 linear_product = np.dot(grid_values, weights) + bias
                 y_pred = activation_function(linear_product)
                 result = "L" if y_pred == 0 else "T"
 
-                # Display the result
-                document.getElementById("classification-result").innerText = f"Predicted Class: {result}"
-            except Exception as e:
-                document.getElementById("classification-result").innerText = f"Error: {str(e)}"
+                result_text = f"Prediction: {result}"
+                pydom["div#test-output"].html = result_text
+                except Exception as e:
+                pydom["div#test-output"].html = f"Error: {str(e)}"
     </script>
 </body>
 </html>
