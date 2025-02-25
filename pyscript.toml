@@ -1,1 +1,3 @@
-packages = ["numpy", "pyweb", "pyscript"]
+  packages = ["pandas","matplotlib","numpy"]
+  plugins = []
+           
