@@ -16,6 +16,8 @@
 
     <section class="pyscript"> 
         <script type="py">
+            import pyodide
+            await pyodide.loadPackage("numpy")  # Load numpy explicitly
             import numpy as np
             from pyweb import pydom
 
